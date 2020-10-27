@@ -12,8 +12,8 @@ if [ "$operation" = "start" ]; then
 	bin/zookeeper-server-start.sh config/zookeeper.properties &
 	sleep 10
 	bin/kafka-server-start.sh config/server.properties 
-	#bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --topic topological_inventory-persister --partitions 500 --config max.message.bytes=10000000	
-	#bin/kafka-topics.sh --alter --zookeeper localhost:2181 --replication-factor 1 --topic topological_inventory-persister --partitions 500 --config max.message.bytes=10000000	
+	#bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --topic platform.topological-inventory.persister --partitions 500 --config max.message.bytes=10000000
+	#bin/kafka-topics.sh --alter --zookeeper localhost:2181 --topic platform.topological-inventory.persister --partitions 2 --config max.message.bytes=10000000
 elif [ "$operation" = "fast-forget" ]; then
 	bin/kafka-configs.sh --zookeeper localhost:2181 --alter --entity-type topics --entity-name platform.topological-inventory.persister --add-config retention.ms=1000
 	bin/kafka-configs.sh --zookeeper localhost:2181 --alter --entity-type topics --entity-name platform.topological-inventory.operations-openshift --add-config retention.ms=1000
@@ -23,6 +23,9 @@ elif [ "$operation" = "rm-fast-forget" ]; then
 elif [ "$operation" = "stop" ]; then
 	bin/kafka-server-stop.sh
 	bin/zookeeper-server-stop.sh
+elif [ "$operation" = "watch" ]; then
+  bin/kafka-console-consumer.sh --bootstrap-server="$QUEUE_HOST:$QUEUE_PORT" --topic="platform.sources.event-stream"
+
 else
 	echo "Usage: kafka.sh <operation>"
 	echo "--- Operation:---"
